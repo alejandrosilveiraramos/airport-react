@@ -4,6 +4,7 @@ import { PrincipalContainer } from "../components/principal-container/PrincipalC
 export const Home = () => {
     return (
         <React.Fragment>
+            
             <PrincipalContainer />
         </React.Fragment>
     )
