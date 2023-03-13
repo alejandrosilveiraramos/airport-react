@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { Home } from '../pages/home/Home'
 import { Airport } from '../pages/airport/Airport'
 
+
 export const AppRoutes = () => {
 
     return(

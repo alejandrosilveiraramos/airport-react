@@ -22,7 +22,7 @@ export const Header = () => {
       path: '/'
     },
     {
-      text: 'Airport',
+      text: 'Airports',
       path: '/airport'
     },
   ];
@@ -70,8 +70,7 @@ export const Header = () => {
             href="/"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
+              display: { xs: 'none', lg: 'flex' },
               fontWeight: 700,
               letterSpacing: '.3rem',
               color: 'inherit',
@@ -127,7 +126,6 @@ export const Header = () => {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
               color: 'inherit',

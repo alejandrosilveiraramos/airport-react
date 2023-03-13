@@ -9,11 +9,11 @@ function App() {
   return (
     <React.Fragment>
       <BrowserRouter>
-      
-        <div style={{display: 'flex',flexDirection: 'column', background: '#e8e8e8', width: '100vw', height: '100vh'}}>
+       
           <Header />
+          
           <AppRoutes/>
-        </div>
+        
       </BrowserRouter>
     </React.Fragment>
   )
