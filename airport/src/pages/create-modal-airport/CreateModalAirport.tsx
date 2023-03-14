@@ -1,6 +1,5 @@
 import * as React from 'react';
-import{ Box, Fade, Modal } from '@mui/material';
-import { FormAirport } from '../components/form-airport/FormAirport';
+import{ Box, Fade, Modal, Paper, FormControl, TextField, Button, Typography } from '@mui/material';
 
 interface ChatModalProps {
   open: boolean;
@@ -29,11 +28,24 @@ export const CreateModalAirport : React.FC<ChatModalProps> = ({ open, handleClos
               width: 'auto',
               p: 4,
             }}>  
-          
-              <FormAirport
-                    selectedRows={selectedRows}
-              />
-              
+              <Box sx={{
+              display: "flex",
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40rem',
+              margin: '3rem 0'
+              }}>
+                  <Paper elevation={3} sx={{display: "flex", flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '90%', padding: '3rem 0rem'}}>
+                    <Typography>Complete the form to create a new Airport</Typography>
+                    <FormControl sx={{ m: 1, width: '70%', gap: '2rem' }} variant="outlined">
+                      <TextField id="outlined-basic" label="Code Airport" variant="outlined" type="text" />
+                      <TextField id="outlined-basic" label="Name Airport" variant="outlined" type="text"  />
+                      <TextField id="outlined-basic" label="Address Airport" variant="outlined" type="text" />
+                      <Button type='submit' color="success" variant="outlined">Create</Button>
+                    </FormControl>
+                </Paper>
+              </Box>
             </Box>
           </Fade>  
         </Modal>

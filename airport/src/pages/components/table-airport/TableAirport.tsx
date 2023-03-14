@@ -1,19 +1,15 @@
-import * as React from 'react';
+import React, {useState, useEffect} from 'react';
 
-import {Box, Button, Container, IconButton, Paper, Typography } from '@mui/material';
+import {Box, Container, IconButton, Typography, Paper, FormControl, TextField, Button } from '@mui/material';
 import { DataGrid, GridColDef, GridDeleteIcon } from '@mui/x-data-grid';
-import { getAllAirports } from '../../../services/AirportService';
-import { CreateModalAirport } from '../../create-modal-airport/CreateModalAirport';
-
-
+import { createAirport, deleteAirport, getAllAirports, updateAirport } from '../../../services/AirportService';
+import { AirportData } from '../../../model/AirportData';
 
 export default function DataGridDemo() {
 
-  const handleDelete = (id: any) => {
-    const remainingRows = airports.filter((row) => row.id !== id);
-    setAirports(remainingRows);
-  };
-  
+
+
+  // set Columns DataGrid --Start
   const columns: GridColDef[] = [
     { field: 'codeAirport', headerName: 'Code', width: 150 },
     { field: 'nameAirport', headerName: 'Name', width: 150, editable: true },
@@ -27,36 +23,104 @@ export default function DataGridDemo() {
         <IconButton
           color="error"
           onClick={() => handleDelete(params.row.id)}
-        >
+          >
           <GridDeleteIcon />
         </IconButton>
      ),
     },
   ];
+  // set Columns DataGrid --End
 
-  const [airports, setAirports] = React.useState<any[]>([]);
+  const [airports, setAirports] = useState<AirportData[]>([]);
+  
 
+  // Delete --Start
+
+ 
+  
+  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+
+  const handleSelectionModelChange = (ids: any) => {
+    const selectedRowIds = new Set(ids);
+    const selectedRows = airports.filter((row) => selectedRowIds.has(row.codeAirport));
+    setSelectedRows(selectedRows);
+  };
+
+  const handleDelete = (id: any) => {
+    const remainingRows = airports.filter((row) => row.codeAirport !== id);
+    setAirports(remainingRows);
+    
+    deleteAirport(id)
+    console.log('Deleted')
+    
+  };
+  // Delete --End
+  
+  // Read All --Start
   React.useEffect(() => {
     getAllAirports().then((response: any) => {
-      const airportsWithIds = response.data.map((airport: any) => ({
+      const airportsWithIds = response.map((airport: any) => ({
         ...airport,
         id: airport.codeAirport,
       }));
       setAirports(airportsWithIds);
     });
   }, []);
+  // Read All --End
 
-  const [selectedRows, setSelectedRows] = React.useState<any[]>([]);
+  // Create --Start
+  const onSubmit = (evt: any) => {
+    evt.preventDefault();
+    const formData = new FormData(evt.target);
+    const data = Object.fromEntries(formData);
+    createAirport({
+      nameAirport: data.nameAirport.toString(),
+      addressAirport: data.addressAirport.toString()
+    })
+    
+  }
+  // Create --End
 
-  const handleSelectionModelChange = (ids: any) => {
-    const selectedRowIds = new Set(ids);
-    const selectedRows = airports.filter((row) => selectedRowIds.has(row.id));
-    setSelectedRows(selectedRows);
+  // Update --Start
+  const handleUpdate = (params: any) => {
+    const { id, field, value } = params;
+    const updatedRow = airports.map((row) => {
+      if (row.codeAirport === id) {
+        return {
+          ...row,
+          [field]: value,
+        };
+      }
+      return row;
+    });
+    setAirports(updatedRow);
+    console.log("updatedRow:", updatedRow);
+  
+    const updatedAirport: AirportData = {
+      codeAirport: id,
+      nameAirport: field === "nameAirport" ? value : updatedRow.find((row) => row.codeAirport === id)?.nameAirport || "",
+      addressAirport: field === "addressAirport" ? value : updatedRow.find((row) => row.codeAirport === id)?.addressAirport || "",
+    };
+    console.log("updatedAirport:", updatedAirport);
+  
+    updateAirport(id, updatedAirport)
+      .then((response) => {
+        console.log(`Updated ${field} for airport ${id} to ${value}`);
+      })
+      .catch((error) => {
+        console.error(`Failed to update ${field} for airport ${id}:`, error);
+      });
   };
+  
+  
+  
+  // Update --End
 
-  const [open, setOpen] = React.useState(false);
-  const handleClose = () => setOpen(false);
-  const handleOpen = () => setOpen(true);
+  // Open Modal --Start
+  // const [open, setOpen] = React.useState(false);
+  // const handleClose = () => setOpen(false);
+  // const handleOpen = () => setOpen(true);
+  // Open Modal --End
 
 
   return (
@@ -70,7 +134,7 @@ export default function DataGridDemo() {
               rows={airports}
               columns={columns}
               getRowId={(airport) => airport.id}
-              onRowSelectionModelChange={(selectedRows) => handleSelectionModelChange(selectedRows)}
+              onCellEditStop={handleUpdate}
               initialState={{
                 pagination: {
                   paginationModel: {
@@ -85,16 +149,29 @@ export default function DataGridDemo() {
             </Box>
         </Box>
 
-        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '2rem'}}>
+        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '2rem', width: '30%'}}>
 
-          <Paper sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem', padding: '2rem', margin: '2rem', width: '90%'}}>
-            <Typography variant='h5'> Create a new Airport</Typography>
-            <Button onClick={ handleOpen } color="success" variant="outlined">Create</Button>
+          <Paper elevation={3} sx={{
+            display: "flex",
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '3rem 0rem',
+            width: '100%',
+            gap: '2rem'}}>
+
+            <form onSubmit={onSubmit} style={{width: '100%', display: "flex", flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+              <FormControl  sx={{ m: 1, width: '70%', gap: '2rem' }} variant="outlined">
+                <TextField id="nameAirport" name='nameAirport' label="Name Airport" variant="outlined" type="text" />
+                <TextField id="addressAirport" name='addressAirport' label="Address Airport" variant="outlined" type="text"  />
+                <Button type='submit' sx={{margin: '.2rem'}} color="success" variant="outlined">Create an Airport</Button>
+              </FormControl>
+            </form>
           </Paper>
+
         </Box>
         
       </Container>
-      <CreateModalAirport open={open} handleClose={handleClose} selectedRows={selectedRows} />
     </React.Fragment>
   );
 }
